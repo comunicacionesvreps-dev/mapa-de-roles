@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Mapa de mis roles</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: una sola columna tipo app móvil; bienvenida automática, slides por escenario, mapa en sectores y vista por activador */
+:root{
+  --bg:#ebebeb; --surface:#ffffff; --surface-2:#f3f1ee; --line:rgba(44,38,32,.16);
+  --fg:#2c2620; --muted:#6b6155; --accent:#d0202e; --accent-dark:#a8141f; --accent-ink:#ffffff; --accent-soft:#f6dfe0;
+  --c-familia:#b5700f; --c-pareja:#c2476e; --c-estudio:#2f6fb5; --c-comunidad:#2a8466; --c-otro:#7457b0;
+  --f-display:"Mulish", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-body:"Mulish", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --surface:#1b222b; --surface-2:#242d38; --line:#33404e;
+  --fg:#e8edf2; --muted:#9aa7b5; --accent:#f07a82; --accent-dark:#e0606a; --accent-ink:#1a0d0f; --accent-soft:#3a2026;
+  --c-familia:#e6a64a; --c-pareja:#ec84a6; --c-estudio:#6fa6e6; --c-comunidad:#5cc39d; --c-otro:#a990e6;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --surface:#1b222b; --surface-2:#242d38; --line:#33404e;
+  --fg:#e8edf2; --muted:#9aa7b5; --accent:#f07a82; --accent-dark:#e0606a; --accent-ink:#1a0d0f; --accent-soft:#3a2026;
+  --c-familia:#e6a64a; --c-pareja:#ec84a6; --c-estudio:#6fa6e6; --c-comunidad:#5cc39d; --c-otro:#a990e6;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 48px}
+.wrap{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:1.75rem;font-weight:700}
+h2{font-size:1.35rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+
+/* bienvenida */
+.splash{position:fixed;inset:0;z-index:20;background:var(--bg);color:var(--fg);display:grid;place-items:center;text-align:center;cursor:pointer;
+  padding:calc(24px + env(safe-area-inset-top,0px)) max(24px, env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(24px, env(safe-area-inset-left,0px))}
+.splash div{display:flex;flex-direction:column;gap:14px;max-width:520px}
+.splash h1{font-size:clamp(1.8rem,7vw,2.6rem);font-weight:700}
+.splash p{color:var(--muted)}
+.splash p{font-size:1.15rem}
+.splash small{opacity:.75;font-size:.8rem}
+.splash.out{opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:no-preference){.splash{transition:opacity .5s ease}.splash h1{animation:rise .7s ease-out}@keyframes rise{from{transform:translateY(10px)}to{transform:none}}}
+
+.steps{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.steps button{flex:1 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:8px 14px;font:inherit;font-size:.85rem;cursor:pointer;white-space:nowrap}
+.steps button[aria-current="step"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.steps button:disabled{opacity:.45;cursor:not-allowed}
+.steps .n{font-variant-numeric:tabular-nums;margin-right:4px;opacity:.7}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:18px;min-width:0}
+
+button{font:inherit}
+.btn{border:1px solid var(--accent);border-radius:999px;padding:10px 20px;font-weight:600;cursor:pointer;background:var(--accent);color:var(--accent-ink)}
+.btn:hover:not(:disabled){background:var(--accent-dark);border-color:var(--accent-dark)}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn.ghost:hover:not(:disabled){background:var(--accent-soft);color:var(--accent)}
+.btn.small{padding:7px 12px;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.link-btn{border:0;background:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:4px;font-size:.85rem}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row.between{justify-content:space-between}
+.row.end{justify-content:flex-end}
+
+.progress{display:flex;align-items:center;gap:10px}
+.progress .bar{display:flex;gap:5px}
+.progress .bar i{width:22px;height:6px;border-radius:3px;background:var(--line)}
+.progress .bar i.on{background:var(--accent)}
+.progress span{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.slide-head{display:flex;flex-direction:column;gap:8px}
+.cat-tag{display:inline-flex;align-items:center;gap:8px}
+.cat-tag .dot{width:12px;height:12px;border-radius:50%}
+.intro-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.rule{border-radius:10px;background:var(--surface-2);padding:10px 12px;font-size:.92rem}
+.acts{display:flex;flex-direction:column;gap:16px}
+.act{border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.act .n{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.act h3{font-size:1.02rem}
+.act .q{font-size:.95rem}
+.act .ex{font-size:.88rem;color:var(--muted);font-style:italic}
+.act.missing{border-color:var(--accent)}
+.act input, .extra-in{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--fg);font:inherit;padding:12px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;cursor:pointer}
+.check input{margin-top:4px;width:18px;height:18px;accent-color:var(--accent)}
+.warn{color:var(--accent);font-size:.88rem;font-weight:700}
+
+.roles{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.role{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg)}
+.role .num{flex:none;width:26px;height:26px;border-radius:50%;color:#fff;font-weight:700;font-size:.8rem;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.role .text{flex:1;min-width:0;overflow-wrap:anywhere}
+
+/* mapa */
+.map-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+@media (min-width:820px){.map-layout{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}}
+.map-box{display:flex;flex-direction:column;gap:10px;min-width:0}
+.map-box svg{width:100%;max-width:420px;height:auto;margin:0 auto;display:block}
+.detail{min-height:52px;border-radius:10px;background:var(--surface-2);padding:10px 12px;font-size:.92rem}
+.groups{display:flex;flex-direction:column;gap:14px;min-width:0}
+.group h3{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.group h3 i{width:12px;height:12px;border-radius:50%;display:inline-block}
+
+/* activadores */
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media (min-width:760px){.cols{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.col{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.col header{display:flex;flex-direction:column;gap:2px}
+.col .count{font-size:.8rem;color:var(--muted)}
+.card{border-radius:8px;padding:8px 10px;background:var(--surface);border:1px solid var(--line);border-left-width:4px;font-size:.9rem;overflow-wrap:anywhere}
+.card small{display:block;color:var(--muted);font-size:.75rem}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted);justify-content:center}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.dl-note{font-size:.85rem;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.panel{animation:in .25s ease-out}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+
+<div class="splash" id="splash" role="dialog" aria-label="Bienvenida">
+  <div>
+    <h1>Mapa de mis roles</h1>
+    <p>Estás a punto de sumergirte en el relato de tu vida.</p>
+    <small>Toca para continuar</small>
+  </div>
+</div>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:6px">
+    <span class="eyebrow">Roles que sostienen mi carrera</span>
+    <h1>Mapa de mis roles</h1>
+  </header>
+  <nav class="steps" id="steps" aria-label="Pasos"></nav>
+  <main id="view"></main>
+  <p class="small muted">Nada de lo que escribas aquí se guarda: si cierras o recargas la página, se borra. Descarga tu mapa y tus roles para conservarlos.</p>
+</div>
+
+<script>
+/* Orden de las categorías: es el orden de los sectores del mapa, en el sentido del reloj desde arriba */
+const CATS = {
+  familia:{label:"Familia", color:"var(--c-familia)", hex:"#b5700f"},
+  pareja:{label:"Pareja y amigos", color:"var(--c-pareja)", hex:"#c2476e"},
+  estudio:{label:"Estudio y trabajo", color:"var(--c-estudio)", hex:"#2f6fb5"},
+  comunidad:{label:"Comunidad", color:"var(--c-comunidad)", hex:"#2a8466"},
+  otro:{label:"Otros roles", color:"var(--c-otro)", hex:"#7457b0"}
+};
+const CAT_ORDER = ["familia","pareja","estudio","comunidad","otro"];
+const ACTS = {
+  bien:{label:"Lo que se te da bien sin tanto esfuerzo", short:"Lo que se me da bien"},
+  relacion:{label:"Tu manera de relacionarte con los demás", short:"Cómo me relaciono"},
+  porque:{label:"Lo que te motiva y haces porque sí, no por obligación", short:"Lo que hago porque sí"}
+};
+const ACT_KEYS = ["bien","relacion","porque"];
+
+const SLIDES = [
+  {cat:"estudio", title:"Estudio y trabajo",
+   intro:"Este será tu punto de partida. Tu rol como estudiante o trabajador va mucho más allá del nombre del cargo o de la carrera que estudiaste. Piensa en todo lo que has vivido y se esconde detrás de esa etiqueta.",
+   acts:{
+     bien:{q:"¿Qué te pedían a ti porque sabían que lo harías bien?", ex:"Era quien escribía los trabajos cuando armábamos los grupos"},
+     relacion:{q:"¿Cómo te describirían tus compañeros o colegas?", ex:"Era quien hacía reír a los demás en los momentos de tensión"},
+     porque:{q:"¿En qué te involucrabas aunque no te correspondiera?", ex:"Soy quien organiza las celebraciones de los días especiales en el trabajo"}
+   }},
+  {cat:"pareja", title:"Pareja y amigos",
+   intro:"Ahora pasemos a lo personal: las personas que has elegido tener cerca, tus amigos y tu pareja, actual o pasada. ¿Qué papel juegas en sus vidas?",
+   acts:{
+     bien:{q:"¿Para qué te buscan tus amigos o tu pareja? Piensa en eso que te piden a ti porque saben que lo harás bien.", ex:"Soy a quien llaman cuando tienen que tomar una decisión difícil"},
+     relacion:{q:"Si les preguntaran a tus amigos cómo eres con ellos, ¿qué dirían?", ex:"Era quien escuchaba sin juzgar cuando alguien estaba pasando un mal momento"},
+     porque:{q:"¿Qué propones o haces sin que nadie te lo pida?", ex:"Soy quien organiza los planes y se encarga de que todos lleguen"}
+   }},
+  {cat:"comunidad", title:"Comunidad", optional:true,
+   intro:"¿Te identificas con alguna causa social? ¿Haces parte de alguna iglesia, colectivo artístico, grupo deportivo? Aquí te enfocarás en el “nosotros” del cual haces parte.",
+   acts:{
+     bien:{q:"¿Qué tareas terminan en tus manos porque el grupo sabe que las harás bien?", ex:"Soy quien se encarga de difundir los eventos que realizamos"},
+     relacion:{q:"¿Qué actitudes reconocerían en ti tus compañeros de grupo?", ex:"Era quien animaba al equipo cuando las cosas no salían bien"},
+     porque:{q:"¿En qué te involucras aunque no te corresponda?", ex:"Soy quien da la bienvenida a los nuevos y les explica cómo funciona el grupo"}
+   }},
+  {cat:"familia", title:"Familia",
+   intro:"Esta es la última categoría. Tu familia es la raíz de la cual brotaste: en la que has crecido y, si aplica, la que has formado. Un buen punto de partida es recordar los eventos importantes que marcaron tu historia familiar: ¿qué rol cumpliste en ellos?",
+   acts:{
+     bien:{q:"¿Qué te pide tu familia porque saben que lo harás bien?", ex:"Soy quien ayuda a mi mamá cuando necesita redactar un documento importante"},
+     relacion:{q:"¿Cómo te describiría tu familia? Piensa en el lugar que ocupas en sus vidas.", ex:"Soy la persona en quien confía mi hermana cuando necesita desahogarse"},
+     porque:{q:"¿Qué haces en tu familia sin que nadie te lo pida?", ex:"Soy quien reúne a todos en las fechas especiales"}
+   }}
+];
+const MAX_EXTRAS = 3;
+const STEPS = ["Tus roles","Mi mapa de roles","Mis roles por activador"];
+
+function blankEntries(){ const e={}; SLIDES.forEach(s=>ACT_KEYS.forEach(a=>e[`${s.cat}:${a}`]="")); return e; }
+let state = { step:0, slide:0, entries:blankEntries(), na:{comunidad:false}, extras:[], extraDraft:"", selected:null, showMissing:false };
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const scrollTop = () => window.scrollTo({top:0, behavior:"smooth"});
+
+/* Todos los roles, numerados en el orden de los sectores del mapa */
+function roles(){
+  const out=[];
+  CAT_ORDER.forEach(cat=>{
+    if(cat==="otro"){ state.extras.forEach(x=>out.push({id:x.id, text:x.text, cat:"otro", act:null})); return; }
+    if(cat==="comunidad" && state.na.comunidad) return;
+    ACT_KEYS.forEach(a=>{ const t=state.entries[`${cat}:${a}`].trim(); if(t) out.push({id:`${cat}:${a}`, text:t, cat, act:a}); });
+  });
+  return out.map((r,i)=>({...r, n:i+1}));
+}
+function slideComplete(i){
+  const s=SLIDES[i-1]; if(!s) return true;
+  if(s.optional && state.na[s.cat]) return true;
+  return ACT_KEYS.every(a=>state.entries[`${s.cat}:${a}`].trim().length>=3);
+}
+const allComplete = () => SLIDES.every((_,i)=>slideComplete(i+1));
+
+/* ---------- bienvenida ---------- */
+(function(){
+  const sp=$("#splash"); let done=false;
+  const close=()=>{ if(done) return; done=true; sp.classList.add("out"); setTimeout(()=>{ sp.hidden=true; },550); };
+  sp.addEventListener("click", close);
+  document.addEventListener("keydown", close, {once:true});
+  setTimeout(close, 4000);
+})();
+
+/* ---------- navegación ---------- */
+function renderSteps(){
+  const ok=allComplete();
+  $("#steps").innerHTML = STEPS.map((s,i)=>`<button data-step="${i}" ${i===state.step?'aria-current="step"':''} ${i>0&&!ok?"disabled":""}><span class="n">${i+1}</span>${s}</button>`).join("");
+}
+document.addEventListener("click", e=>{
+  const b=e.target.closest("[data-step]");
+  if(b && !b.disabled){ state.step=+b.dataset.step; render(); scrollTop(); }
+});
+
+/* ---------- Paso 1: slides ---------- */
+function progress(){
+  const total=SLIDES.length+2;
+  return `<div class="progress"><div class="bar">${Array.from({length:total},(_,i)=>`<i class="${i<=state.slide?"on":""}"></i>`).join("")}</div>
+    <span>${state.slide===0?"Antes de empezar":state.slide<=SLIDES.length?`Escenario ${state.slide} de ${SLIDES.length}`:"Para cerrar"}</span></div>`;
+}
+function slideIntro(){
+  return `<section class="panel">
+    ${progress()}
+    <div class="slide-head">
+      <h2>Reconociendo los roles que te definen</h2>
+      <p>Vas a recorrer cuatro escenarios de tu vida: estudio/trabajo, pareja/amigos, comunidad y familia. En cada uno escribirás tres roles, uno por cada activador:</p>
+      <ul class="intro-list">${ACT_KEYS.map(a=>`<li>${ACTS[a].label}</li>`).join("")}</ul>
+      <p>Al final, podrás comparar tus roles y empezar a conectar lo que se repite en tu vida.</p>
+    </div>
+    <div class="rule">Recuerda: escribe roles que hayan sido importantes para ti. Sé breve: entre menos palabras uses, mejor. Pueden ser de tu presente o de tu pasado.</div>
+    <p class="small muted"><em>Tip: no te frustres si te cuesta identificarlos al principio. Tómate tu tiempo.</em></p>
+    <div class="row end"><button class="btn" id="next">Empezar</button></div>
+  </section>`;
+}
+function slideCat(i){
+  const s=SLIDES[i-1], c=CATS[s.cat], na=s.optional && state.na[s.cat];
+  return `<section class="panel">
+    ${progress()}
+    <div class="slide-head">
+      <span class="cat-tag"><span class="dot" style="background:${c.color}"></span><span class="eyebrow" style="color:var(--muted)">Escenario ${i}</span></span>
+      <h2>${s.title}</h2>
+      <p>${s.intro}</p>
+    </div>
+    ${s.optional?`<label class="check"><input type="checkbox" id="na" ${na?"checked":""}><span>No hago ni he hecho parte de ningún grupo o comunidad. Pasaré a la siguiente categoría.</span></label>`:""}
+    <div class="acts" ${na?"hidden":""}>
+      ${ACT_KEYS.map((a,j)=>{
+        const k=`${s.cat}:${a}`, v=state.entries[k], miss=state.showMissing && v.trim().length<3;
+        return `<div class="act ${miss?"missing":""}" style="border-left-color:${c.color}">
+          <span class="n">Activador ${j+1}</span>
+          <h3>${ACTS[a].label}</h3>
+          <p class="q">${s.acts[a].q}</p>
+          <p class="ex">Por ejemplo: "${s.acts[a].ex}"</p>
+          <input id="in-${k.replace(":","-")}" data-entry="${k}" maxlength="100" value="${esc(v)}" placeholder="Escribe tu rol" aria-label="${ACTS[a].label}: escribe tu rol">
+          ${miss?`<span class="warn">Escribe tu rol para este activador.</span>`:""}
+        </div>`;}).join("")}
+    </div>
+    <div class="row between">
+      <button class="btn ghost" id="prev">Atrás</button>
+      <button class="btn" id="next">${i===SLIDES.length?"Continuar":"Siguiente escenario"}</button>
+    </div>
+  </section>`;
+}
+function slideExtras(){
+  const full_=state.extras.length>=MAX_EXTRAS;
+  return `<section class="panel">
+    ${progress()}
+    <div class="slide-head">
+      <span class="cat-tag"><span class="dot" style="background:${CATS.otro.color}"></span><span class="eyebrow" style="color:var(--muted)">Opcional</span></span>
+      <h2>¿Algún rol más?</h2>
+      <p>¿Hay algún rol que no cupo en ninguna categoría, pero sientes que te define? Anótalo aquí y haz clic en agregar. Si no tienes ninguno, continúa.</p>
+    </div>
+    ${state.extras.length?`<ul class="roles">${state.extras.map(x=>`<li class="role"><span class="num" style="background:${CATS.otro.color}">+</span><span class="text">${esc(x.text)}</span><button class="link-btn" data-delx="${x.id}">Quitar</button></li>`).join("")}</ul>`:""}
+    ${full_?`<p class="small muted">Puedes agregar hasta ${MAX_EXTRAS} roles adicionales.</p>`:`
+    <div class="row" style="flex-wrap:nowrap">
+      <input class="extra-in" id="x-text" maxlength="100" value="${esc(state.extraDraft)}" placeholder="Por ejemplo: siempre tengo un plan B" aria-label="Rol adicional">
+      <button class="btn small" id="x-add" ${state.extraDraft.trim().length>=3?"":"disabled"}>Agregar</button>
+    </div>`}
+    <div class="row between">
+      <button class="btn ghost" id="prev">Atrás</button>
+      <button class="btn" id="finish">Ver mi mapa</button>
+    </div>
+  </section>`;
+}
+function stepRoles(){
+  if(state.slide===0) return slideIntro();
+  if(state.slide<=SLIDES.length) return slideCat(state.slide);
+  return slideExtras();
+}
+function bindRoles(){
+  const next=$("#next"), prev=$("#prev");
+  if(prev) prev.onclick=()=>{ state.slide--; state.showMissing=false; render(); scrollTop(); };
+  if(next) next.onclick=()=>{
+    if(state.slide>0 && !slideComplete(state.slide)){ state.showMissing=true; render(); const m=document.querySelector(".act.missing input"); m&&m.focus(); return; }
+    state.showMissing=false; state.slide++; render(); scrollTop();
+  };
+  document.querySelectorAll("[data-entry]").forEach(inp=>inp.addEventListener("input",()=>{
+    state.entries[inp.dataset.entry]=inp.value;
+    if(state.showMissing && inp.value.trim().length>=3){ const box=inp.closest(".act"); box.classList.remove("missing"); const w=box.querySelector(".warn"); w&&w.remove(); }
+    renderSteps();
+  }));
+  const na=$("#na"); if(na) na.onchange=()=>{ state.na.comunidad=na.checked; state.showMissing=false; render(); };
+  const xt=$("#x-text"), xa=$("#x-add");
+  const add=()=>{ if(state.extraDraft.trim().length<3) return; state.extras.push({id:"otro:"+Date.now(), text:state.extraDraft.trim()}); state.extraDraft=""; render(); const n=$("#x-text"); n&&n.focus(); };
+  if(xt){ xt.addEventListener("input",()=>{ state.extraDraft=xt.value; xa.disabled=xt.value.trim().length<3; }); xt.addEventListener("keydown",e=>{ if(e.key==="Enter") add(); }); }
+  if(xa) xa.onclick=add;
+  document.querySelectorAll("[data-delx]").forEach(b=>b.onclick=()=>{ state.extras=state.extras.filter(x=>x.id!==b.dataset.delx); render(); });
+  const fin=$("#finish"); if(fin) fin.onclick=()=>{ state.step=1; render(); scrollTop(); };
+}
+
+/* ---------- Mapa en sectores ---------- */
+const MAP = {W:440, H:440, cx:220, cy:220, R:214, rYo:40};
+function mapCats(){ const R=roles(); return CAT_ORDER.filter(c=>R.some(r=>r.cat===c)); }
+function mapSVG(opts={}){
+  const R=roles(), cats=mapCats(), n=cats.length, {W,H,cx,cy,R:rad,rYo}=MAP;
+  const col = c => opts.hex ? CATS[c].hex : CATS[c].color;
+  const T = opts.hex ? {fg:"#2c2620", muted:"#6b6155", surface:"#ffffff", accent:"#d0202e", ink:"#ffffff"} : {fg:"var(--fg)", muted:"var(--muted)", surface:"var(--surface)", accent:"var(--accent)", ink:"var(--accent-ink)"};
+  const pt=(r,deg)=>{ const a=(deg-90)*Math.PI/180; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; };
+  let g="";
+  cats.forEach((c,i)=>{
+    const a0=i*360/n, a1=(i+1)*360/n, mid=(a0+a1)/2;
+    const [x0,y0]=pt(rad,a0), [x1,y1]=pt(rad,a1), large=(a1-a0)>180?1:0;
+    g+= n===1 ? `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="${col(c)}" fill-opacity=".16" stroke="${col(c)}" stroke-opacity=".5"/>`
+              : `<path d="M${cx},${cy} L${x0},${y0} A${rad},${rad} 0 ${large} 1 ${x1},${y1} Z" fill="${col(c)}" fill-opacity=".16" stroke="${T.surface}" stroke-width="3"/>`;
+    // puntos sobre la bisectriz del sector
+    const list=R.filter(r=>r.cat===c), k=list.length;
+    list.forEach((r,j)=>{
+      const rr = k===1 ? (rYo+rad)/2 : rYo+44 + j*((rad-rYo-74)/(k-1));
+      const off = k>1 ? (j%2===0?-1:1)*Math.min(10,(a1-a0)/6) : 0;
+      const [x,y]=pt(rr, mid+off*(rr<90?1.6:1));
+      const sel=!opts.hex && state.selected===r.id;
+      g+=`<g class="mdot" data-sel="${r.id}" ${opts.hex?"":'tabindex="0" role="button"'} aria-label="Rol ${r.n}: ${esc(r.text)}" style="cursor:pointer">
+        ${sel?`<circle cx="${x}" cy="${y}" r="23" fill="none" stroke="${T.fg}" stroke-width="2.5"/>`:""}
+        <circle cx="${x}" cy="${y}" r="18" fill="${col(c)}" stroke="${T.surface}" stroke-width="2"/>
+        <text x="${x}" y="${y+5.5}" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff" style="font-family:var(--f-body);pointer-events:none">${r.n}</text></g>`;
+    });
+  });
+  g+=`<circle cx="${cx}" cy="${cy}" r="${rYo}" fill="${T.accent}" stroke="${T.surface}" stroke-width="3"/>
+      <text x="${cx}" y="${cy+7}" text-anchor="middle" font-size="21" font-weight="700" fill="${T.ink}" style="font-family:var(--f-display)">Yo</text>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" ${opts.hex?`width="${W}" height="${H}"`:""} role="img" aria-label="Mapa de roles por categoría">${g}</svg>`;
+}
+function detail(){
+  const r=roles().find(x=>x.id===state.selected);
+  return r?`<strong>${r.n}.</strong> ${esc(r.text)}<br><span class="muted small">${CATS[r.cat].label}${r.act?" · "+ACTS[r.act].short:""}</span>`
+          :`<span class="muted">Toca un número en el mapa para ver el rol completo.</span>`;
+}
+function bindMap(){
+  document.querySelectorAll(".mdot").forEach(g=>{
+    const f=()=>{ state.selected=g.dataset.sel; render(); };
+    g.addEventListener("click",f);
+    g.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); }});
+  });
+}
+
+/* ---------- Paso 2: mapa ---------- */
+function stepMap(){
+  const R=roles();
+  return `<section class="panel">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <h2>Mi mapa de roles</h2>
+      <p>En el centro estás tú y gravitando alrededor, los roles que han tenido una influencia importante en tu vida: los que continúan y los que dejaron huella. Tómate un minuto para analizar el mapa de tus roles.</p>
+    </div>
+    <div class="map-layout">
+      <div class="map-box">${mapSVG()}<div class="legend">${mapCats().map(c=>`<span><i style="background:${CATS[c].color}"></i>${CATS[c].label}</span>`).join("")}</div><div class="detail" aria-live="polite">${detail()}</div></div>
+      <div class="groups">
+        ${mapCats().map(c=>`<div class="group"><h3><i style="background:${CATS[c].color}"></i>${CATS[c].label}</h3>
+          <ul class="roles">${R.filter(r=>r.cat===c).map(r=>`<li class="role"><span class="num" style="background:${CATS[c].color}">${r.n}</span><span class="text">${esc(r.text)}</span></li>`).join("")}</ul></div>`).join("")}
+      </div>
+    </div>
+    <div class="row between">
+      <button class="btn ghost" id="back-roles">Editar mis roles</button>
+      <div class="row">
+        <button class="btn ghost" id="dl-map">Descargar mi mapa</button>
+        <button class="btn" data-step="2">Ver mis roles por activador</button>
+      </div>
+    </div>
+    <p class="dl-note" id="dl-note" hidden>Si la descarga no empieza, toma una captura de pantalla de tu mapa.</p>
+  </section>`;
+}
+function bindMapStep(){
+  bindMap();
+  $("#back-roles").onclick=()=>{ state.step=0; state.slide=1; render(); scrollTop(); };
+  $("#dl-map").onclick=()=>downloadPNG("map");
+}
+
+/* ---------- Paso 3: por activador ---------- */
+function stepActs(){
+  const R=roles(), extras=R.filter(r=>r.cat==="otro");
+  const cols=ACT_KEYS.map(k=>{
+    const list=R.filter(r=>r.act===k), scen=new Set(list.map(r=>r.cat)).size;
+    return `<div class="col">
+      <header><h3>${ACTS[k].short}</h3><span class="count">${list.length} ${list.length===1?"rol":"roles"} · ${scen} ${scen===1?"escenario":"escenarios"}</span></header>
+      ${list.map(r=>`<div class="card" style="border-left-color:${CATS[r.cat].color}">${esc(r.text)}<small>${CATS[r.cat].label}</small></div>`).join("")}
+    </div>`;
+  }).join("");
+  return `<section class="panel">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <h2>Mis roles por activador</h2>
+      <p>Aquí están tus roles reagrupados por activador, sin importar el escenario. Pilas: este será tu insumo para empezar a ver lo que se repite, así que descárgalo y tenlo a mano: lo usarás en el siguiente paso del recorrido.</p>
+    </div>
+    <div class="cols">${cols}</div>
+    ${extras.length?`<div class="col"><header><h3>Otros roles que te definen</h3></header>${extras.map(r=>`<div class="card" style="border-left-color:${CATS.otro.color}">${esc(r.text)}</div>`).join("")}</div>`:""}
+    <div class="legend">${mapCats().filter(c=>c!=="otro").map(c=>`<span><i style="background:${CATS[c].color}"></i>${CATS[c].label}</span>`).join("")}</div>
+    <div class="row between">
+      <button class="btn ghost" data-step="1">Volver al mapa</button>
+      <button class="btn" id="dl-acts">Descargar mis roles</button>
+    </div>
+    <p class="dl-note" id="dl-note" hidden>Si la descarga no empieza, toma una captura de pantalla de esta pantalla.</p>
+  </section>`;
+}
+
+/* ---------- Descargas (imagen PNG) ---------- */
+function wrapLines(ctx, text, maxW){
+  const words=text.split(/\s+/), lines=[]; let line="";
+  words.forEach(w=>{ const t=line?line+" "+w:w; if(ctx.measureText(t).width>maxW && line){ lines.push(line); line=w; } else line=t; });
+  if(line) lines.push(line); return lines;
+}
+async function downloadPNG(kind){
+  const note=$("#dl-note");
+  try{
+    const R=roles(), W=1080, P=64, S=2;
+    const sections = kind==="map"
+      ? mapCats().map(c=>({title:CATS[c].label, color:CATS[c].hex, items:R.filter(r=>r.cat===c).map(r=>`${r.n}. ${r.text}`)}))
+      : [...ACT_KEYS.map(k=>({title:ACTS[k].short, color:"#d0202e", items:R.filter(r=>r.act===k).map(r=>`${r.text} (${CATS[r.cat].label})`)})),
+         ...(R.some(r=>r.cat==="otro")?[{title:"Otros roles que te definen", color:CATS.otro.hex, items:R.filter(r=>r.cat==="otro").map(r=>r.text)}]:[])];
+    let img=null, imgH=0;
+    if(kind==="map"){
+      const svg=mapSVG({hex:true}).replace(/style="font-family:[^"]*"/g,'font-family="Mulish, Arial, sans-serif"');
+      img=new Image(); img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+      await new Promise((res,rej)=>{ img.onload=res; img.onerror=rej; });
+      imgH=Math.round((W-2*P)*MAP.H/MAP.W);
+    }
+    const m=document.createElement("canvas").getContext("2d");
+    m.font="28px Arial, sans-serif";
+    let h=P+56+50+(img?imgH+30:0);
+    sections.forEach(s=>{ h+=52; s.items.forEach(it=>{ h+=wrapLines(m,it,W-2*P-20).length*38+8; }); h+=18; });
+    h+=P;
+    const cv=document.createElement("canvas"); cv.width=W*S; cv.height=h*S;
+    const ctx=cv.getContext("2d"); ctx.scale(S,S);
+    ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,W,h);
+    let y=P;
+    ctx.fillStyle="#d0202e"; ctx.font="bold 22px Arial, sans-serif"; ctx.fillText("ROLES QUE SOSTIENEN MI CARRERA",P,y+22); y+=56;
+    ctx.fillStyle="#2c2620"; ctx.font="bold 44px Arial, sans-serif"; ctx.fillText(kind==="map"?"Mi mapa de roles":"Mis roles por activador",P,y+30); y+=50;
+    if(img){ ctx.drawImage(img,P,y,W-2*P,imgH); y+=imgH+30; }
+    sections.forEach(s=>{
+      y+=14; ctx.fillStyle=s.color; ctx.font="bold 30px Arial, sans-serif"; ctx.fillText(s.title,P,y+26); y+=38;
+      ctx.fillStyle="#2c2620"; ctx.font="28px Arial, sans-serif";
+      s.items.forEach(it=>{ wrapLines(ctx,it,W-2*P-20).forEach(l=>{ ctx.fillText(l,P+20,y+28); y+=38; }); y+=8; });
+      y+=18;
+    });
+    const blob=await new Promise(res=>cv.toBlob(res,"image/png"));
+    const filename=kind==="map"?"mi-mapa-de-roles.png":"mis-roles-por-activador.png";
+    // Dentro de claude.ai la descarga pasa por el permiso del visor; en un sitio propio (p. ej. GitHub Pages) se descarga directo
+    const dl = window.claude && window.claude.use ? await window.claude.use("downloads").catch(()=>null) : null;
+    if(dl){
+      try{ await dl.save({filename, data:blob}); }
+      catch(err){ if(err && err.code!=="declined" && note) note.hidden=false; }
+      return;
+    }
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download=filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  }catch(e){ if(note) note.hidden=false; }
+}
+
+/* ---------- render ---------- */
+function render(){
+  if(state.step>0 && !allComplete()) state.step=0;
+  renderSteps();
+  $("#view").innerHTML=[stepRoles,stepMap,stepActs][state.step]();
+  if(state.step===0) bindRoles();
+  if(state.step===1) bindMapStep();
+  if(state.step===2) $("#dl-acts").onclick=()=>downloadPNG("acts");
+}
+
+/* EJEMPLO: roles ficticios precargados para visualizar el consolidado final. Quitar este bloque en la versión para usuarios. */
+const DEMO=false;
+if(DEMO){
+  const demo={
+    "estudio:bien":"Era quien escribía los trabajos en la universidad",
+    "estudio:relacion":"Soy quien explica cuando alguien del equipo se enreda",
+    "estudio:porque":"Organizo las celebraciones de cumpleaños en la oficina",
+    "pareja:bien":"Ayudo a ordenar ideas ante decisiones difíciles",
+    "pareja:relacion":"Escucho sin juzgar cuando alguien la está pasando mal",
+    "pareja:porque":"Propongo y organizo los planes del grupo",
+    "comunidad:bien":"Diseñaba las piezas de difusión del colectivo",
+    "comunidad:relacion":"Animaba al equipo de voleibol cuando íbamos perdiendo",
+    "comunidad:porque":"Daba la bienvenida a los nuevos del grupo juvenil",
+    "familia:bien":"Ayudo a mi mamá a redactar documentos importantes",
+    "familia:relacion":"Soy la persona en quien confía mi hermana",
+    "familia:porque":"Reúno a todos en las fechas especiales"};
+  Object.assign(state.entries,demo);
+  state.extras=[{id:"otro:1",text:"Siempre tengo un plan B"},{id:"otro:2",text:"Investigo todo antes de un viaje"}];
+  state.step=1;
+  document.querySelector("#view").insertAdjacentHTML("beforebegin",'<p class="small" style="background:var(--accent-soft);border-radius:10px;padding:10px 14px"><strong>Ejemplo con roles ficticios.</strong> Así se vería el consolidado de una persona que completó los cuatro escenarios y agregó dos roles más.</p>');
+}
+render();
+</script>
+
+</body>
+</html>
